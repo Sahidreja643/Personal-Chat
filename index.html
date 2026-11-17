@@ -1,211 +1,276 @@
-
 <!DOCTYPE html>
 <html lang="bn">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#090909">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#080808">
+<meta name="description" content="Personal Chat - Private Messaging">
 <title>Personal Chat</title>
 <style>
-*{box-sizing:border-box}
-body{
- margin:0;background:#090909;color:white;
- font-family:Arial,sans-serif;
-}
-header{
- height:70px;padding:12px 18px;
- display:flex;align-items:center;gap:12px;
- border-bottom:1px solid #292929;
- background:#101010;
-}
-.logo{
- width:43px;height:43px;border-radius:14px;
- background:#252525;display:grid;place-items:center;
- font-size:23px;
-}
-h2{font-size:20px;margin:0}
-small{color:#888;font-size:11px}
-main{max-width:900px;margin:auto;padding:20px}
-.search{
- width:100%;padding:14px;border-radius:13px;
- border:1px solid #303030;background:#171717;
- color:white;outline:none;font-size:15px;
-}
-.heading{
- display:flex;justify-content:space-between;
- align-items:center;margin:25px 0 12px;
-}
-.heading h3{font-size:16px}
-.heading span{color:#888;font-size:12px}
-.contact{
- display:flex;align-items:center;gap:13px;
- padding:14px 5px;border-bottom:1px solid #222;
- cursor:pointer;
-}
-.avatar{
- width:49px;height:49px;border-radius:50%;
- background:#292929;display:grid;
- place-items:center;font-size:20px;
-}
-.info{flex:1;min-width:0}
-.info strong{font-size:15px}
-.info p{color:#888;font-size:12px;margin:5px 0 0}
-.time{color:#777;font-size:11px}
-.chat{
- display:none;position:fixed;inset:0;
- background:#090909;z-index:5;
-}
-.chat header{justify-content:space-between}
-.back{
- background:none;color:white;border:0;
- font-size:23px;cursor:pointer;
-}
-.messages{
- height:calc(100% - 145px);
- overflow-y:auto;padding:18px;
- display:flex;flex-direction:column;gap:12px;
-}
-.bubble{
- max-width:78%;padding:12px 15px;
- border-radius:15px;background:#242424;
- align-self:flex-start;overflow-wrap:anywhere;
-}
-.mine{
- background:#315d49;align-self:flex-end;
-}
-.send{
- position:absolute;bottom:0;width:100%;
- display:flex;gap:8px;padding:12px;
- background:#111;border-top:1px solid #292929;
-}
-.send input{
- flex:1;min-width:0;background:#222;
- border:0;border-radius:25px;padding:14px;
- color:white;outline:none;
-}
-.send button{
- border:0;border-radius:50%;width:48px;
- background:#d6d6d6;font-size:19px;
-}
-footer{
- position:fixed;bottom:0;left:0;right:0;
- background:#111;border-top:1px solid #292929;
- display:flex;justify-content:space-around;
- padding:15px;color:#aaa;font-size:12px;
-}
-@media(min-width:600px){
- .chat{left:50%;transform:translateX(-50%);
- width:480px;border-left:1px solid #333;
- border-right:1px solid #333}
-}
+:root{color-scheme:dark;--bg:#080808;--panel:#121212;--card:#1b1b1b;--line:#292929;--text:#fff;--muted:#999;--accent:#b69cff;--green:#25d366}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
+header{height:68px;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;background:#101010;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+.logo{font-weight:800;font-size:20px;letter-spacing:1px}.logo span{color:var(--accent)}.tag{font-size:10px;color:var(--muted);letter-spacing:2px;margin-top:3px}
+.avatar{width:46px;height:46px;border-radius:50%;object-fit:cover;background:#333;flex-shrink:0}
+.auth{max-width:420px;margin:45px auto;padding:24px;background:var(--panel);border:1px solid var(--line);border-radius:20px}
+.auth h1{text-align:center}.muted{color:var(--muted);font-size:13px}.center{text-align:center}
+.field{width:100%;padding:14px;margin:7px 0;background:#202020;color:white;border:1px solid #383838;border-radius:11px;outline:none}.field:focus{border-color:var(--accent)}
+.primary{width:100%;padding:14px;border:0;border-radius:11px;background:var(--accent);color:#100b1c;font-weight:bold;margin-top:10px}
+.link{background:none;border:0;color:var(--accent);padding:12px}
+.app{max-width:850px;margin:auto;padding-bottom:85px}.search{width:calc(100% - 32px);margin:16px;padding:14px;background:var(--panel);color:white;border:1px solid var(--line);border-radius:12px}
+.heading{padding:8px 18px;font-weight:bold}.list{padding:4px 16px}.person{display:flex;align-items:center;gap:12px;padding:13px 5px;border-bottom:1px solid var(--line);cursor:pointer}.person-info{min-width:0;flex:1}.person-info strong,.person-info small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.person-info small{color:var(--muted);margin-top:5px}.empty{text-align:center;color:var(--muted);padding:45px 15px}
+.bottom{position:fixed;bottom:0;left:0;right:0;display:flex;justify-content:space-around;background:#111;border-top:1px solid var(--line);padding:10px 4px;z-index:8}.nav{background:none;border:0;color:#999;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px}.nav.active{color:var(--accent)}.nav b{font-size:19px}
+.profile{margin:18px;padding:20px;background:var(--panel);border:1px solid var(--line);border-radius:17px;text-align:center}.profile .avatar{width:100px;height:100px}
+#chatScreen{position:fixed;inset:0;background:var(--bg);z-index:20;display:flex;flex-direction:column}.chat-head{display:flex;align-items:center;gap:11px;padding:12px;background:#111;border-bottom:1px solid var(--line)}.chat-head button{font-size:25px;color:white;background:none;border:0}.chat-head .details{flex:1}.messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:9px}.bubble{max-width:82%;padding:11px 14px;border-radius:16px;background:#252525;align-self:flex-start;overflow-wrap:anywhere;white-space:pre-wrap}.bubble.mine{background:#493b70;align-self:flex-end}.bubble small{display:block;text-align:right;font-size:10px;color:#ddd;margin-top:6px}.send-area{display:flex;gap:8px;padding:11px;background:#111;border-top:1px solid var(--line)}.send-area input{min-width:0;flex:1;padding:13px 15px;background:#242424;color:white;border:0;border-radius:25px}.send-area button{width:47px;border:0;border-radius:50%;background:var(--accent);font-size:19px}
+#notice{position:fixed;top:78px;left:50%;transform:translateX(-50%);z-index:50;background:#303030;color:white;padding:12px 17px;border-radius:10px;max-width:90%;text-align:center;box-shadow:0 5px 20px #000}
 </style>
 </head>
 <body>
-<header>
- <div class="logo">✉</div>
- <div>
-  <h2>Personal Chat</h2>
-  <small>PRIVATE MESSAGING</small>
- </div>
-</header>
+<div id="notice" class="hidden"></div>
+<header><div><div class="logo">PERSONAL <span>CHAT</span></div><div class="tag">PRIVATE MESSAGING</div></div><img id="headerAvatar" class="avatar" alt="Profile"></header>
 
-<main>
- <input class="search" id="search"
- placeholder="Search contacts..." oninput="filterChats()">
-
- <div class="heading">
-  <h3>Recent Chats</h3>
-  <span>YOUR MESSAGES</span>
- </div>
-
- <div id="contacts">
-  <div class="contact" onclick="openChat('Rahul','👤')">
-   <div class="avatar">👤</div>
-   <div class="info"><strong>Rahul</strong>
-    <p>Start a conversation</p></div>
-   <span class="time">Now</span>
-  </div>
-  <div class="contact" onclick="openChat('Aman','🙂')">
-   <div class="avatar">🙂</div>
-   <div class="info"><strong>Aman</strong>
-    <p>Say hello!</p></div>
-   <span class="time">Now</span>
-  </div>
-  <div class="contact" onclick="openChat('Sakib','🧑')">
-   <div class="avatar">🧑</div>
-   <div class="info"><strong>Sakib</strong>
-    <p>Start a conversation</p></div>
-   <span class="time">Now</span>
-  </div>
- </div>
-</main>
-
-<footer>
- <span>💬 Chats</span>
- <span>👥 Contacts</span>
- <span>👤 Profile</span>
- <span>⚙ Settings</span>
-</footer>
-
-<div class="chat" id="chat">
- <header>
-  <button class="back" onclick="closeChat()">←</button>
-  <div style="flex:1">
-   <h2 id="chatName">Chat</h2>
-   <small>Personal Chat</small>
-  </div>
-  <span>⋮</span>
- </header>
- <div class="messages" id="messages">
-  <div class="bubble">Welcome to Personal Chat 🖤</div>
- </div>
- <div class="send">
-  <input id="message" placeholder="Write a message..."
-   onkeydown="if(event.key==='Enter')sendMessage()">
-  <button onclick="sendMessage()">➤</button>
- </div>
+<section id="authScreen" class="auth">
+<h1 id="authTitle">Welcome Back</h1><p class="muted center">Sign in to your Personal Chat account</p>
+<input id="email" class="field" type="email" autocomplete="email" placeholder="Email address">
+<input id="password" class="field" type="password" autocomplete="current-password" placeholder="Password">
+<div id="registerFields" class="hidden">
+<input id="displayName" class="field" placeholder="Your display name" maxlength="50">
+<input id="username" class="field" placeholder="Username (a-z, 0-9, _)">
 </div>
+<button id="authButton" class="primary">LOGIN</button>
+<p id="authMessage" class="muted center"></p>
+<div class="center"><button id="switchAuth" class="link">Create a new account</button></div>
+</section>
 
-<script>
-let currentChat="";
-let chats={};
+<main id="mainApp" class="app hidden">
+<section id="chatsPage"><input id="searchInput" class="search" placeholder="Search by name or username..."><div id="listHeading" class="heading">Recent Chats</div><div id="peopleList" class="list"><div class="empty">No conversations yet.</div></div></section>
+<section id="profilePage" class="hidden"><div class="profile">
+<img id="profileAvatar" class="avatar" alt="Your profile"><h2 id="profileName">Your Profile</h2><p id="profileUsername" class="muted"></p>
+<input id="newName" class="field" placeholder="Display name" maxlength="50"><input id="newUsername" class="field" placeholder="Username"><input id="newBio" class="field" placeholder="Bio" maxlength="160">
+<p class="muted">Profile photo (maximum 3 MB)</p><input id="avatarFile" class="field" type="file" accept="image/*">
+<button id="saveProfile" class="primary">SAVE PROFILE</button><button id="logoutButton" class="link">LOG OUT</button>
+</div></section>
+<section id="settingsPage" class="hidden"><div class="profile"><h2>Settings</h2><p class="muted">More privacy and notification settings will be added in a later version.</p></div></section>
+</main>
+<nav id="bottomNav" class="bottom hidden">
+<button class="nav active" data-page="chats"><b>▣</b>Chats</button><button class="nav" data-page="contacts"><b>♙</b>Contacts</button><button class="nav" data-page="profile"><b>●</b>Profile</button><button class="nav" data-page="settings"><b>⚙</b>Settings</button>
+</nav>
+<section id="chatScreen" class="hidden">
+<div class="chat-head"><button id="backChat" aria-label="Back">‹</button><img id="chatAvatar" class="avatar" alt=""><div class="details"><strong id="chatName">Chat</strong><div class="muted">Private conversation</div></div></div>
+<div id="messageList" class="messages"></div><div class="send-area"><input id="messageInput" maxlength="4000" placeholder="Write a message..."><button id="sendButton" aria-label="Send">➤</button></div>
+</section>
 
-function openChat(name,emoji){
- currentChat=name;
- document.getElementById("chatName").textContent=emoji+" "+name;
- document.getElementById("chat").style.display="block";
- showMessages();
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+const SUPABASE_URL = 'https://xcbezhomtqnwrbhonwgu.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_cla-OecF7u1pa30Rf5M9gg_LQQ_7ERR';
+const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const $ = id => document.getElementById(id);
+const placeholder = 'https://placehold.co/100x100/222/fff?text=P';
+let currentUser = null, currentProfile = null, activeContact = null;
+let chatChannel = null, listChannel = null, registerMode = false, currentPage = 'chats', searchTimer = null;
+
+function notify(message){
+ const el=$('notice'); el.textContent=message; el.classList.remove('hidden');
+ clearTimeout(notify.timer); notify.timer=setTimeout(()=>el.classList.add('hidden'),3500);
 }
-function closeChat(){
- document.getElementById("chat").style.display="none";
+function photo(url){return url || placeholder;}
+function showAuth(){ $('authScreen').classList.remove('hidden');$('mainApp').classList.add('hidden');$('bottomNav').classList.add('hidden'); }
+function showApp(){ $('authScreen').classList.add('hidden');$('mainApp').classList.remove('hidden');$('bottomNav').classList.remove('hidden'); }
+function cleanUsername(v){return v.trim().toLowerCase();}
+function validUsername(v){return /^[a-z0-9_]{3,20}$/.test(v);}
+
+async function loadProfile(){
+ let {data,error}=await db.from('chat_profiles').select('*').eq('user_id',currentUser.id).maybeSingle();
+ if(error) throw error;
+ if(!data){
+  const {error:insertError}=await db.from('chat_profiles').insert({
+   user_id:currentUser.id,
+   display_name:currentUser.user_metadata?.display_name || currentUser.email?.split('@')[0] || 'User'
+  });
+  if(insertError) throw insertError;
+  ({data,error}=await db.from('chat_profiles').select('*').eq('user_id',currentUser.id).single());
+  if(error) throw error;
+ }
+ currentProfile=data;
+ $('headerAvatar').src=photo(data.avatar_url);
+ $('profileAvatar').src=photo(data.avatar_url);
+ $('profileName').textContent=data.display_name || 'User';
+ $('profileUsername').textContent=data.username ? '@'+data.username : 'Username not set';
+ $('newName').value=data.display_name || '';
+ $('newUsername').value=data.username || '';
+ $('newBio').value=data.bio || '';
 }
-function sendMessage(){
- const input=document.getElementById("message");
- const value=input.value.trim();
- if(!value || !currentChat)return;
- if(!chats[currentChat])chats[currentChat]=[];
- chats[currentChat].push(value);
- input.value="";
- showMessages();
+
+async function authAction(){
+ const email=$('email').value.trim(), password=$('password').value;
+ if(!email || !password){notify('Enter email and password.');return;}
+ if(password.length<6){notify('Password must be at least 6 characters.');return;}
+ $('authButton').disabled=true; $('authButton').textContent='PLEASE WAIT...';
+ try{
+  if(registerMode){
+   const name=$('displayName').value.trim(), username=cleanUsername($('username').value);
+   if(!name || !validUsername(username)) throw new Error('Enter a name and a username (3-20 letters, numbers or underscore).');
+   const {data,error}=await db.auth.signUp({email,password,options:{data:{display_name:name}}});
+   if(error) throw error;
+   if(data.session){
+    const {error:profileError}=await db.from('chat_profiles').update({display_name:name,username}).eq('user_id',data.user.id);
+    if(profileError) throw profileError;
+    notify('Account created.');
+   }else notify('Check your email to confirm your account, then log in.');
+  }else{
+   const {error}=await db.auth.signInWithPassword({email,password});
+   if(error) throw error;
+  }
+ }catch(e){notify(e.message || 'Authentication failed.');}
+ finally{$('authButton').disabled=false;$('authButton').textContent=registerMode?'CREATE ACCOUNT':'LOGIN';}
 }
-function showMessages(){
- const box=document.getElementById("messages");
- box.innerHTML="";
- (chats[currentChat]||[]).forEach(msg=>{
-  const div=document.createElement("div");
-  div.className="bubble mine";
-  div.textContent=msg;
-  box.appendChild(div);
+
+async function initialize(user){
+ currentUser=user;
+ try{await loadProfile();showApp();await loadRecentChats();subscribeList();}
+ catch(e){notify('Profile setup error: '+e.message);}
+}
+
+function renderPeople(people, latestMap=null){
+ const list=$('peopleList');list.innerHTML='';
+ const filtered=people.filter(p=>p.user_id!==currentUser.id);
+ if(!filtered.length){list.innerHTML='<div class="empty">No people found.</div>';return;}
+ filtered.forEach(person=>{
+  const row=document.createElement('div');row.className='person';
+  const img=document.createElement('img');img.className='avatar';img.src=photo(person.avatar_url);img.alt='';
+  const info=document.createElement('div');info.className='person-info';
+  const name=document.createElement('strong');name.textContent=person.display_name || 'User';
+  const sub=document.createElement('small');const last=latestMap?.get(person.user_id);
+  sub.textContent=last ? ((last.sender_id===currentUser.id?'You: ':'')+last.body) : (person.username?'@'+person.username:'Personal Chat user');
+  info.append(name,sub);row.append(img,info);row.addEventListener('click',()=>openChat(person));list.append(row);
+ });
+}
+
+async function loadRecentChats(){
+ if(!currentUser)return;
+ $('listHeading').textContent='Recent Chats';
+ const {data,error}=await db.from('chat_messages').select('*')
+  .or(`sender_id.eq.${currentUser.id},receiver_id.eq.${currentUser.id}`)
+  .order('created_at',{ascending:false}).limit(200);
+ if(error){notify(error.message);return;}
+ const latest=new Map();
+ (data||[]).forEach(m=>{const other=m.sender_id===currentUser.id?m.receiver_id:m.sender_id;if(!latest.has(other))latest.set(other,m);});
+ const ids=[...latest.keys()];
+ if(!ids.length){$('peopleList').innerHTML='<div class="empty">No chats yet.<br>Open Contacts to find someone.</div>';return;}
+ const {data:people,error:pe}=await db.from('chat_profiles').select('*').in('user_id',ids);
+ if(pe){notify(pe.message);return;}renderPeople(people||[],latest);
+}
+
+async function searchContacts(){
+ const q=$('searchInput').value.trim();
+ if(!q){if(currentPage==='contacts')return showContacts();return loadRecentChats();}
+ $('listHeading').textContent='Search Results';
+ let request=db.from('chat_profiles').select('*');
+ if(/^[0-9a-f-]{36}$/i.test(q))request=request.eq('user_id',q);
+ else {
+  const safe=q.replace(/[,%()]/g,' ').trim();
+  request=request.or(`display_name.ilike.%${safe}%,username.ilike.%${safe}%`);
+ }
+ const {data,error}=await request.limit(40);
+ if(error){notify(error.message);return;}renderPeople(data||[]);
+}
+async function showContacts(){
+ $('listHeading').textContent='All Contacts';
+ const {data,error}=await db.from('chat_profiles').select('*').order('display_name').limit(100);
+ if(error){notify(error.message);return;}renderPeople(data||[]);
+}
+
+async function openChat(person){
+ activeContact=person;$('chatName').textContent=person.display_name||'User';$('chatAvatar').src=photo(person.avatar_url);
+ $('chatScreen').classList.remove('hidden');await loadMessages();
+ if(chatChannel)await db.removeChannel(chatChannel);
+ chatChannel=db.channel('conversation-'+[currentUser.id,person.user_id].sort().join('-'))
+  .on('postgres_changes',{event:'INSERT',schema:'public',table:'chat_messages'},payload=>{
+   const m=payload.new;
+   if((m.sender_id===currentUser.id&&m.receiver_id===activeContact?.user_id)||(m.sender_id===activeContact?.user_id&&m.receiver_id===currentUser.id))loadMessages();
+  }).subscribe();
+}
+async function loadMessages(){
+ if(!activeContact)return;
+ const other=activeContact.user_id;
+ const {data,error}=await db.from('chat_messages').select('*')
+  .or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${other}),and(sender_id.eq.${other},receiver_id.eq.${currentUser.id})`)
+  .order('created_at',{ascending:true}).limit(300);
+ if(error){notify(error.message);return;}
+ const box=$('messageList');box.innerHTML='';
+ if(!data?.length){box.innerHTML='<div class="empty">Say hello! Start your conversation.</div>';return;}
+ data.forEach(m=>{
+  const bubble=document.createElement('div');bubble.className='bubble'+(m.sender_id===currentUser.id?' mine':'');
+  const body=document.createElement('div');body.textContent=m.body;
+  const time=document.createElement('small');time.textContent=new Date(m.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  bubble.append(body,time);box.append(bubble);
  });
  box.scrollTop=box.scrollHeight;
 }
-function filterChats(){
- const value=document.getElementById("search").value.toLowerCase();
- document.querySelectorAll(".contact").forEach(item=>{
-  item.style.display=item.innerText.toLowerCase().includes(value)
-   ?"flex":"none";
- });
+async function sendMessage(){
+ const body=$('messageInput').value.trim();if(!body||!activeContact)return;
+ $('sendButton').disabled=true;
+ const {error}=await db.from('chat_messages').insert({sender_id:currentUser.id,receiver_id:activeContact.user_id,body});
+ $('sendButton').disabled=false;
+ if(error){notify(error.message);return;}
+ $('messageInput').value='';await loadMessages();
 }
+
+async function saveProfile(){
+ const name=$('newName').value.trim(),username=cleanUsername($('newUsername').value),bio=$('newBio').value.trim();
+ if(!name||!validUsername(username)){notify('Name required. Username must be 3-20 letters, numbers or underscore.');return;}
+ const {error}=await db.from('chat_profiles').update({display_name:name,username,bio}).eq('user_id',currentUser.id);
+ if(error){notify(error.message);return;}await loadProfile();notify('Profile updated.');
+}
+async function uploadAvatar(file){
+ if(!file)return;
+ if(!file.type.startsWith('image/')){notify('Choose an image file.');return;}
+ if(file.size>3*1024*1024){notify('Image must be smaller than 3 MB.');return;}
+ const ext=(file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'')||'jpg';
+ const path=`${currentUser.id}/${Date.now()}.${ext}`;
+ const {error:upError}=await db.storage.from('chat-avatars').upload(path,file,{upsert:false,contentType:file.type});
+ if(upError){notify(upError.message);return;}
+ const {data}=db.storage.from('chat-avatars').getPublicUrl(path);
+ const {error}=await db.from('chat_profiles').update({avatar_url:data.publicUrl}).eq('user_id',currentUser.id);
+ if(error){notify(error.message);return;}await loadProfile();notify('Profile photo updated.');
+}
+function subscribeList(){
+ if(listChannel)db.removeChannel(listChannel);
+ listChannel=db.channel('chat-list-'+currentUser.id).on('postgres_changes',{event:'INSERT',schema:'public',table:'chat_messages'},()=>{if(currentPage==='chats'&&$('chatScreen').classList.contains('hidden'))loadRecentChats();}).subscribe();
+}
+async function navigate(page){
+ currentPage=page;$('chatsPage').classList.add('hidden');$('profilePage').classList.add('hidden');$('settingsPage').classList.add('hidden');
+ document.querySelectorAll('.nav').forEach(b=>b.classList.toggle('active',b.dataset.page===page));
+ if(page==='chats'){$('chatsPage').classList.remove('hidden');$('searchInput').placeholder='Search by name or username...';$('searchInput').value='';await loadRecentChats();}
+ if(page==='contacts'){$('chatsPage').classList.remove('hidden');$('searchInput').placeholder='Search contacts...';$('searchInput').value='';await showContacts();}
+ if(page==='profile'){$('profilePage').classList.remove('hidden');await loadProfile();}
+ if(page==='settings')$('settingsPage').classList.remove('hidden');
+}
+$('authButton').addEventListener('click',authAction);
+$('switchAuth').addEventListener('click',()=>{
+ registerMode=!registerMode;$('registerFields').classList.toggle('hidden',!registerMode);
+ $('authTitle').textContent=registerMode?'Create Account':'Welcome Back';
+ $('authButton').textContent=registerMode?'CREATE ACCOUNT':'LOGIN';
+ $('switchAuth').textContent=registerMode?'Already have an account? Login':'Create a new account';
+});
+$('searchInput').addEventListener('input',()=>{clearTimeout(searchTimer);searchTimer=setTimeout(searchContacts,300);});
+$('sendButton').addEventListener('click',sendMessage);
+$('messageInput').addEventListener('keydown',e=>{if(e.key==='Enter')sendMessage();});
+$('backChat').addEventListener('click',async()=>{$('chatScreen').classList.add('hidden');activeContact=null;if(chatChannel){await db.removeChannel(chatChannel);chatChannel=null;}subscribeList();if(currentPage==='chats')loadRecentChats();});
+$('saveProfile').addEventListener('click',saveProfile);
+$('avatarFile').addEventListener('change',e=>uploadAvatar(e.target.files[0]));
+$('logoutButton').addEventListener('click',async()=>{const {error}=await db.auth.signOut();if(error)notify(error.message);});
+document.querySelectorAll('.nav').forEach(b=>b.addEventListener('click',()=>navigate(b.dataset.page)));
+
+const {data:{session},error:sessionError}=await db.auth.getSession();
+if(sessionError)notify(sessionError.message);
+if(session?.user)await initialize(session.user);else showAuth();
+
+window.addEventListener('beforeunload',()=>{if(chatChannel)db.removeChannel(chatChannel);if(listChannel)db.removeChannel(listChannel);});
 </script>
 </body>
-</html>
+ </html>
+ 
