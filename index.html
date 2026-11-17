@@ -30,34 +30,22 @@ header{height:68px;padding:10px 16px;display:flex;align-items:center;justify-con
 <header><div><div class="logo">PERSONAL <span>CHAT</span></div><div class="tag">PRIVATE MESSAGING</div></div><img id="headerAvatar" class="avatar" alt="Profile"></header>
 
 <section id="authScreen" class="auth">
-<h1 id="authTitle">Welcome</h1><p class="muted center">Sign in with your mobile number</p>
-
-<!-- Phone input view -->
-<div id="phoneView">
-<input id="phoneInput" class="field" type="tel" placeholder="Phone number (e.g. +91...)">
-<button id="sendOtpButton" class="primary">SEND OTP</button>
-</div>
-
-<!-- OTP verify view -->
-<div id="otpView" class="hidden">
-<input id="otpInput" class="field" type="text" placeholder="Enter 6-digit OTP">
-<button id="verifyOtpButton" class="primary">VERIFY & LOGIN</button>
-<button id="backToPhone" class="link">Change phone number</button>
-</div>
-
+<h1 id="authTitle">Welcome Back</h1><p class="muted center">Sign in with your username</p>
+<input id="usernameInput" class="field" type="text" placeholder="Username (e.g. rais)">
+<input id="passwordInput" class="field" type="password" placeholder="Password">
 <div id="registerFields" class="hidden">
 <input id="displayName" class="field" placeholder="Your display name" maxlength="50">
-<input id="username" class="field" placeholder="Username (a-z, 0-9, _)">
 </div>
-
+<button id="authButton" class="primary">LOGIN</button>
 <p id="authMessage" class="muted center"></p>
+<div class="center"><button id="switchAuth" class="link">Create a new account</button></div>
 </section>
 
 <main id="mainApp" class="app hidden">
 <section id="chatsPage"><input id="searchInput" class="search" placeholder="Search by name or username..."><div id="listHeading" class="heading">Recent Chats</div><div id="peopleList" class="list"><div class="empty">No conversations yet.</div></div></section>
 <section id="profilePage" class="hidden"><div class="profile">
 <img id="profileAvatar" class="avatar" alt="Your profile"><h2 id="profileName">Your Profile</h2><p id="profileUsername" class="muted"></p>
-<input id="newName" class="field" placeholder="Display name" maxlength="50"><input id="newUsername" class="field" placeholder="Username"><input id="newBio" class="field" placeholder="Bio" maxlength="160">
+<input id="newName" class="field" placeholder="Display name" maxlength="50"><input id="newBio" class="field" placeholder="Bio" maxlength="160">
 <p class="muted">Profile photo (maximum 3 MB)</p><input id="avatarFile" class="field" type="file" accept="image/*">
 <button id="saveProfile" class="primary">SAVE PROFILE</button><button id="logoutButton" class="link">LOG OUT</button>
 </div></section>
@@ -81,8 +69,7 @@ const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 const $ = id => document.getElementById(id);
 const placeholder = 'https://placehold.co/100x100/222/fff?text=P';
 let currentUser = null, currentProfile = null, activeContact = null;
-let chatChannel = null, listChannel = null, currentPage = 'chats', searchTimer = null;
-let pendingPhone = '';
+let chatChannel = null, listChannel = null, registerMode = false, currentPage = 'chats', searchTimer = null;
 
 function notify(message){
  const el=$('notice'); el.textContent=message; el.classList.remove('hidden');
@@ -100,7 +87,7 @@ async function loadProfile(){
  if(!data){
   const {error:insertError}=await db.from('chat_profiles').insert({
    user_id:currentUser.id,
-   display_name:currentUser.user_metadata?.display_name || currentUser.phone || 'User'
+   display_name:currentUser.user_metadata?.display_name || currentUser.email?.split('@')[0] || 'User'
   });
   if(insertError) throw insertError;
   ({data,error}=await db.from('chat_profiles').select('*').eq('user_id',currentUser.id).single());
@@ -112,45 +99,36 @@ async function loadProfile(){
  $('profileName').textContent=data.display_name || 'User';
  $('profileUsername').textContent=data.username ? '@'+data.username : 'Username not set';
  $('newName').value=data.display_name || '';
- $('newUsername').value=data.username || '';
  $('newBio').value=data.bio || '';
 }
 
-// Phone OTP Login Actions
-async function sendOtp(){
- const phone=$('phoneInput').value.trim();
- if(!phone){notify('Enter your phone number with country code.');return;}
- pendingPhone=phone;
- $('sendOtpButton').disabled=true; $('sendOtpButton').textContent='SENDING...';
- try{
-  const {error}=await db.auth.signInWithOtp({phone});
-  if(error) throw error;
-  notify('OTP sent to your phone.');
-  $('phoneView').classList.add('hidden');
-  $('otpView').classList.remove('hidden');
- }catch(e){
-  notify(e.message || 'Failed to send OTP.');
- }finally{
-  $('sendOtpButton').disabled=false; $('sendOtpButton').textContent='SEND OTP';
- }
-}
+async function authAction(){
+ const username=cleanUsername($('usernameInput').value), password=$('passwordInput').value;
+ if(!username || !password){notify('Enter username and password.');return;}
+ if(!validUsername(username)){notify('Username must be 3-20 letters, numbers or underscore.');return;}
+ if(password.length<6){notify('Password must be at least 6 characters.');return;}
+ 
+ // Supabase works with email under the hood, so we map username to a pseudo email
+ const email = `${username}@chat.local`;
 
-async function verifyOtp(){
- const token=$('otpInput').value.trim();
- if(!token || token.length<6){notify('Enter a valid 6-digit OTP.');return;}
- $('verifyOtpButton').disabled=true; $('verifyOtpButton').textContent='VERIFYING...';
+ $('authButton').disabled=true; $('authButton').textContent='PLEASE WAIT...';
  try{
-  const {data,error}=await db.auth.verifyOtp({phone:pendingPhone,token,type:'sms'});
-  if(error) throw error;
-  if(data.session){
-   currentUser=data.session.user;
-   await initialize(currentUser);
+  if(registerMode){
+   const name=$('displayName').value.trim();
+   if(!name){notify('Enter your display name.');return;}
+   const {data,error}=await db.auth.signUp({email,password,options:{data:{display_name:name}}});
+   if(error) throw error;
+   if(data.user){
+    const {error:profileError}=await db.from('chat_profiles').update({display_name:name,username}).eq('user_id',data.user.id);
+    if(profileError) throw profileError;
+    notify('Account created successfully.');
+   }
+  }else{
+   const {error}=await db.auth.signInWithPassword({email,password});
+   if(error) throw error;
   }
- }catch(e){
-  notify(e.message || 'Invalid OTP.');
- }finally{
-  $('verifyOtpButton').disabled=false; $('verifyOtpButton').textContent='VERIFY & LOGIN';
- }
+ }catch(e){notify(e.message || 'Authentication failed.');}
+ finally{$('authButton').disabled=false;$('authButton').textContent=registerMode?'CREATE ACCOUNT':'LOGIN';}
 }
 
 async function initialize(user){
@@ -245,16 +223,16 @@ async function sendMessage(){
 }
 
 async function saveProfile(){
- const name=$('newName').value.trim(),username=cleanUsername($('newUsername').value),bio=$('newBio').value.trim();
- if(!name||!validUsername(username)){notify('Name required. Username must be 3-20 letters, numbers or underscore.');return;}
- const {error}=await db.from('chat_profiles').update({display_name:name,username,bio}).eq('user_id',currentUser.id);
+ const name=$('newName').value.trim(),bio=$('newBio').value.trim();
+ if(!name){notify('Name required.');return;}
+ const {error}=await db.from('chat_profiles').update({display_name:name,bio}).eq('user_id',currentUser.id);
  if(error){notify(error.message);return;}await loadProfile();notify('Profile updated.');
 }
 async function uploadAvatar(file){
  if(!file)return;
  if(!file.type.startsWith('image/')){notify('Choose an image file.');return;}
  if(file.size>3*1024*1024){notify('Image must be smaller than 3 MB.');return;}
- const ext=(file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'')||'jpg';
+ const ext=(file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g, '')||'jpg';
  const path=`${currentUser.id}/${Date.now()}.${ext}`;
  const {error:upError}=await db.storage.from('chat-avatars').upload(path,file,{upsert:false,contentType:file.type});
  if(upError){notify(upError.message);return;}
@@ -275,14 +253,13 @@ async function navigate(page){
  if(page==='settings')$('settingsPage').classList.remove('hidden');
 }
 
-// Event Listeners
-$('sendOtpButton').addEventListener('click',sendOtp);
-$('verifyOtpButton').addEventListener('click',verifyOtp);
-$('backToPhone').addEventListener('click',()=>{
- $('otpView').classList.add('hidden');
- $('phoneView').classList.remove('hidden');
+$('authButton').addEventListener('click',authAction);
+$('switchAuth').addEventListener('click',()=>{
+ registerMode=!registerMode;$('registerFields').classList.toggle('hidden',!registerMode);
+ $('authTitle').textContent=registerMode?'Create Account':'Welcome Back';
+ $('authButton').textContent=registerMode?'CREATE ACCOUNT':'LOGIN';
+ $('switchAuth').textContent=registerMode?'Already have an account? Login':'Create a new account';
 });
-
 $('searchInput').addEventListener('input',()=>{clearTimeout(searchTimer);searchTimer=setTimeout(searchContacts,300);});
 $('sendButton').addEventListener('click',sendMessage);
 $('messageInput').addEventListener('keydown',e=>{if(e.key==='Enter')sendMessage();});
@@ -299,5 +276,5 @@ if(session?.user)await initialize(session.user);else showAuth();
 window.addEventListener('beforeunload',()=>{if(chatChannel)db.removeChannel(chatChannel);if(listChannel)db.removeChannel(listChannel);});
 </script>
 </body>
-</html>                                                                                                                                       </html>
+ </html>
  
