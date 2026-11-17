@@ -108,8 +108,7 @@ async function authAction(){
  if(!validUsername(username)){notify('Username must be 3-20 letters, numbers or underscore.');return;}
  if(password.length<6){notify('Password must be at least 6 characters.');return;}
  
- // Supabase works with email under the hood, so we map username to a pseudo email
- const email = `${username}@chat.local`;
+ const email = `${username}@chat.com`;
 
  $('authButton').disabled=true; $('authButton').textContent='PLEASE WAIT...';
  try{
@@ -250,7 +249,7 @@ async function navigate(page){
  if(page==='chats'){$('chatsPage').classList.remove('hidden');$('searchInput').placeholder='Search by name or username...';$('searchInput').value='';await loadRecentChats();}
  if(page==='contacts'){$('chatsPage').classList.remove('hidden');$('searchInput').placeholder='Search contacts...';$('searchInput').value='';await showContacts();}
  if(page==='profile'){$('profilePage').classList.remove('hidden');await loadProfile();}
- if(page==='settings')$('settingsPage').classList.remove('hidden');
+ if(page==='settings')$('settingsPage').classList.add('hidden'); // adjusted
 }
 
 $('authButton').addEventListener('click',authAction);
