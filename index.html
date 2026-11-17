@@ -249,7 +249,7 @@ async function navigate(page){
  if(page==='chats'){$('chatsPage').classList.remove('hidden');$('searchInput').placeholder='Search by name or username...';$('searchInput').value='';await loadRecentChats();}
  if(page==='contacts'){$('chatsPage').classList.remove('hidden');$('searchInput').placeholder='Search contacts...';$('searchInput').value='';await showContacts();}
  if(page==='profile'){$('profilePage').classList.remove('hidden');await loadProfile();}
- if(page==='settings')$('settingsPage').classList.add('hidden'); // adjusted
+ if(page==='settings')$('settingsPage').classList.remove('hidden');
 }
 
 $('authButton').addEventListener('click',authAction);
@@ -275,5 +275,5 @@ if(session?.user)await initialize(session.user);else showAuth();
 window.addEventListener('beforeunload',()=>{if(chatChannel)db.removeChannel(chatChannel);if(listChannel)db.removeChannel(listChannel);});
 </script>
 </body>
- </html>
+</html>                                                           </html>
  
